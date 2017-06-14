@@ -1,0 +1,16 @@
+library(plyr)
+library(ggplot2)
+temp <- seq.Date(from = as.Date("2017/01/01",format = "%Y/%m/%d"), by = "day", length.out = 365)
+dat <- data.frame(date=temp,a)
+names(dat)[2] <- "hours" 
+dat$month<-as.numeric(as.POSIXlt(dat$date)$mon+1)
+dat$monthf<-factor(dat$month,levels=as.character(1:12),labels=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"),ordered=TRUE)
+dat$weekday<-as.POSIXlt(dat$date)$wday
+dat$weekdayf<-factor(dat$weekday,levels=c(1:6,0),labels=c("Mon","Tue","Wed","Thu","Fri","Sat","Sun"),ordered=TRUE)
+dat$week <- as.numeric(format(dat$date,"%W"))
+dat<-ddply(dat,.(monthf),transform,monthweek=1+week-min(week))
+dat$monthweek <- factor(dat$monthweek,levels=rev(0:6))
+
+windowsFonts(myFont = windowsFont("微软雅黑"))
+ggplot(dat,aes(weekdayf,monthweek,fill=hours))+  geom_tile(colour='white') +  facet_wrap(~monthf ,nrow=3) +  scale_fill_gradient(space="Lab",limits=c(min(dat$hours), max(dat$hours)),low="yellow", high="red")  
+#labs(title="在建工期计划",subtitle="可作业小时数",x="Week of 'Month",y="")+  theme(title=element_text(family#="myFont"))
